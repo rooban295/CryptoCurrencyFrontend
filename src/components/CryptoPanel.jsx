@@ -27,6 +27,7 @@ export default function CryptoPanel() {
 
 
   const fetchCryptoData = async (coinId, days) => {
+    console.log(baseUrl)
   try {
     const res = await axios.get(`${baseUrl}/api/crypto/?coinId=${coinId}&days=${days}`);
     return res.data;
