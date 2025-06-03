@@ -27,8 +27,9 @@ export default function CryptoPanel() {
 
 
   const fetchCryptoData = async (coinId, days) => {
+    console.log(baseUrl,"baseUrl")
   try {
-    const res = await axios.get(`https://crypto-currency-dashboard-backend-v2.onrender.com/api/crypto/?coinId=${coinId}&days=${days}`);
+    const res = await axios.get(`${baseUrl}/api/crypto/?coinId=${coinId}&days=${days}`);
     return res.data;
   } catch (error) {
     console.error('Error fetching data:', error);
