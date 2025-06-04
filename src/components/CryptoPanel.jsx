@@ -24,18 +24,36 @@ export default function CryptoPanel() {
   const [crypto, setCrypto] = useState("bitcoin");
   const [timeframe, setTimeframe] = useState(7);
   const [chartInstance, setChartInstance] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [loadingTimeout, setLoadingTimeout] = useState(null);
 
 
   const fetchCryptoData = async (coinId, days) => {
-    console.log(baseUrl,"baseUrl")
-  try {
-    const res = await axios.get(`${baseUrl}/api/crypto/?coinId=${coinId}&days=${days}`);
-    return res.data;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    return null;
-  }
-};
+    console.log(baseUrl,"baseUrl");
+    setError(null);
+    setIsLoading(true);
+    
+    // Set a timeout to show slow loading notification after 3 seconds
+    const timeout = setTimeout(() => {
+      setLoadingTimeout("Server is taking longer than expected to respond...");
+    }, 3000);
+
+    try {
+      const res = await axios.get(`${baseUrl}/api/crypto/?coinId=${coinId}&days=${days}`);
+      clearTimeout(timeout);
+      setIsLoading(false);
+      setLoadingTimeout(null);
+      return res.data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      clearTimeout(timeout);
+      setIsLoading(false);
+      setLoadingTimeout(null);
+      setError("Failed to fetch data. Please try again later.");
+      return null;
+    }
+  };
 
   const formatDate = (ts) => {
     const d = new Date(ts);
@@ -180,7 +198,24 @@ useEffect(() => {
         Cryptocurrency Detailed Analysis Panel
       </h1>
 
+      {/* Loading and Error notifications */}
+      {loadingTimeout && (
+        <div className="w-full max-w-5xl mb-4 p-3 bg-yellow-500/20 text-yellow-300 rounded-lg">
+          {loadingTimeout}
+        </div>
+      )}
+      {error && (
+        <div className="w-full max-w-5xl mb-4 p-3 bg-red-500/20 text-red-300 rounded-lg">
+          {error}
+        </div>
+      )}
+
       <div className="bg-[#1e1e1e] rounded-xl p-6 w-full max-w-5xl shadow-lg flex flex-col gap-6">
+        {isLoading && !loadingTimeout && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl">
+            <div className="text-[#00ffc8]">Loading...</div>
+          </div>
+        )}
         <div className="flex flex-wrap justify-between gap-4">
           <div>
             <label className="font-semibold mr-2 text-[#00ffc8]">Select Cryptocurrency:</label>
